@@ -1,6 +1,6 @@
 {
 	"name": "lui-ssr",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "server-side rendering for lui applications",
 	"repository": {
 		"type": "git",

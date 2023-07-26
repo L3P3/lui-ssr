@@ -14,8 +14,85 @@ export default function build(src) {
 	return function run(context = {}) {
 		context.SSR = true;
 		fn(lui, context);
-		// TODO: tree -> html
-		console.log(JSON.stringify(tree, null, 2));
-		return `<!-- TODO -->`;
+		// console.log(JSON.stringify(tree, null, 2));
+		return elements_to_html(tree);
 	};
+}
+
+function elements_to_html(elements) {
+	return elements.map(element_to_html).join('');
+}
+
+function element_to_html(element) {
+	let html = `<${element.tag}`;
+
+	const {className, D, F, innerHTML, innerText, R, S, style, ...attrs} = element.attrs;
+
+	if (className) attrs['class'] = className;
+	if (D) {
+		for (const [key, value] of Object.entries(D)) {
+			attrs['data-' + key] = value;
+		}
+	}
+	if (F) {
+		attrs['class'] = Object.keys(F)
+			.map(key => F[key] ? key : '')
+			.filter(Boolean)
+			.join(' ');
+	}
+
+	let style_merged = [];
+	if (style) {
+		style_merged.push(
+			...style.split(';')
+			.map(s => s.trim())
+		);
+	}
+	if (S) {
+		style_merged.push(
+			...Object.entries(S)
+			.map(([key, value]) => `${camel_to_dashed(key)}:${value}`)
+		);
+	}
+
+	for (const [key, value] of Object.entries(attrs)) {
+		if (typeof value === 'function') continue;
+		if (key.startsWith('on')) continue;
+
+		const attribute = camel_to_dashed(key);
+
+		if (value === true) html += ` ${attribute}`;
+		else html += ` ${attribute}="${html_escape(value)}"`;
+	}
+
+	if (style_merged.length) html += ` style="${html_escape(style_merged.join(';'))}"`;
+
+	const text = innerHTML || innerText && html_escape(innerText);
+
+	if (element.children && element.children.length || text) {
+		html += '>';
+		if (text) html += text;
+		if (element.children) html += elements_to_html(element.children);
+		html += `</${element.tag}>`;
+	}
+	else html += '/>';
+
+	return html;
+}
+
+function html_escape(html) {
+	return (
+		html
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+	);
+}
+
+function camel_to_dashed(name) {
+	return name.replace(
+		/[A-Z]/g,
+		match => '-' + match.toLowerCase()
+	);
 }

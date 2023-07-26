@@ -1,3 +1,5 @@
+// This is copied 1:1 from the lui repository, import replaced with const.
+
 const {
 	hook_callback,
 	hook_dom,
