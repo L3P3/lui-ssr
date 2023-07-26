@@ -68,7 +68,15 @@ const render_nodes = (nodes, elements_target) => {
 
 		case NODE_TYPE_ELEMENT:
 			const element = descriptor_parse(node.descriptor);
-			Object.assign(element.attrs, node.attrs);
+			if (node.attrs) {
+				if (node.attrs.D) {
+					node.attrs.D = Object.assign({}, element.attrs.D, node.attrs.D);
+				}
+				if (node.attrs.S) {
+					node.attrs.S = Object.assign({}, element.attrs.S, node.attrs.S);
+				}
+				Object.assign(element.attrs, node.attrs);
+			}
 			if (node.children) {
 				element.children = [];
 				render_nodes(node.children, element.children);
@@ -116,8 +124,14 @@ export const defer = NOP;
 
 export const defer_end = NOP;
 
-export const dom_define = (handle, descriptor, attrs) => {
+export const dom_define = (handle, descriptor, attrs = {}) => {
 	const template = descriptor_parse(descriptor);
+	if (template.attrs.D) {
+		attrs.D = Object.assign({}, template.attrs.D, attrs.D || null);
+	}
+	if (template.attrs.S) {
+		attrs.S = Object.assign({}, template.attrs.S, attrs.S || null);
+	}
 	Object.assign(template.attrs, attrs);
 	element_cache.set('#' + handle, template);
 };
@@ -162,7 +176,6 @@ export const hook_transition = (target, msecs) => target;
 
 export const init = (root, dom) => {
 	tree.length = 0;
-	element_cache.clear();
 	let nodes;
 
 	try {
@@ -173,6 +186,8 @@ export const init = (root, dom) => {
 	}
 
 	if (nodes) render_nodes(nodes, tree);
+
+	element_cache.clear();
 };
 
 export const node = (component, props, children) => ({
