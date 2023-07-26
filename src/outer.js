@@ -15,6 +15,7 @@ export default function build(src) {
 		context.SSR = true;
 		fn(lui, context);
 		// TODO: tree -> html
+		console.log(JSON.stringify(tree, null, 2));
 		return `<!-- TODO -->`;
 	};
 }

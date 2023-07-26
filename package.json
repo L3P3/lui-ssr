@@ -1,6 +1,6 @@
 {
 	"name": "lui-ssr",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "server-side rendering for lui applications",
 	"repository": {
 		"type": "git",
@@ -15,6 +15,9 @@
 		".": "./src/outer.js"
 	},
 	"type": "module",
+	"scripts": {
+		"test": "node test/apps.js"
+	},
 	"keywords": [
 		"lui",
 		"ssr",
