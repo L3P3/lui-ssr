@@ -66,6 +66,7 @@ function element_to_html(element) {
 	}
 
 	for (const [key, value] of Object.entries(attrs)) {
+		if (value === false) continue;
 		if (typeof value === 'function') continue;
 		if (key.startsWith('on')) continue;
 
