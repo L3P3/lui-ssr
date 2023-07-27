@@ -2,6 +2,12 @@
 
 [lui](https://github.com/L3P3/lui) is working great, but [some people](https://github.com/odincat) want to use it with SSR. This module allows you to do that! 🎉
 
+## Demo
+
+TODO list: [lui (original)](http://l3p3.de/dev/lui/todo-legacy.html) vs [lui-ssr (SSR)](http://l3p3.de/dev/lui/todo-legacy-static.html)
+
+Check out the page source to see the difference.
+
 ## Usage
 
 Import this module into your server or build script and give it the source of your lui application. It will return a string that you can send to the client.
