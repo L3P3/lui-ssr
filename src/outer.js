@@ -4,16 +4,26 @@ const {
 	...lui
 } = inner;
 
+const context_default = {
+	document: {
+		cookie: '',
+	},
+	navigator: {
+		userAgent: 'lui-ssr',
+	},
+	SSR: true,
+};
+
 /**
 	Builds the app.js into a function that can be used to render the app.
 	@param {string} src the app.js
 	@returns {function(Object):string} the rendered html
 */
 export default function build(src) {
-	const fn = new Function('lui', 'window', src);
-	return function run(context = {}) {
-		context.SSR = true;
-		fn(lui, context);
+	const fn = new Function('lui', 'window', 'document', 'navigator', src);
+	return function run(context = null) {
+		context = Object.assign({}, context_default, context);
+		fn(lui, context, context.document, context.navigator);
 		// console.log(JSON.stringify(tree, null, 2));
 		return elements_to_html(tree);
 	};
@@ -82,7 +92,7 @@ function element_to_html(element) {
 
 function html_escape(html) {
 	return (
-		html
+		String(html)
 		.replaceAll('&', '&amp;')
 		.replaceAll('<', '&lt;')
 		.replaceAll('>', '&gt;')
