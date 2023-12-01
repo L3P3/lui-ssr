@@ -4,6 +4,11 @@ const {
 	...lui
 } = inner;
 
+const elements_no_close = new Set([
+	'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+	'link', 'meta', 'param', 'source', 'track', 'wbr',
+]);
+
 const context_default = {
 	document: {
 		cookie: '',
@@ -80,13 +85,13 @@ function element_to_html(element) {
 
 	const text = innerHTML || innerText && html_escape(innerText);
 
-	if (element.children && element.children.length || text) {
+	if (!elements_no_close.has(element.tag)) {
 		html += '>';
 		if (text) html += text;
 		if (element.children) html += elements_to_html(element.children);
 		html += `</${element.tag}>`;
 	}
-	else html += '/>';
+	else html += '>';
 
 	return html;
 }
