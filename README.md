@@ -39,7 +39,7 @@ SSR stands for Server-Side Rendering. It is a technique to render a web applicat
 
 ## Caveats
 
-- This module is quite simple and might not work with hacky lui applications. If you find a bug, please open an issue or a pull request anyway.
+- This module is quite simple and might not work with really hacky lui applications. ([minicraft](https://l3p3.de/minicraft) works, see its page source) If you find a bug, please open an issue or a pull request anyway.
 
 - Only applications having a seperate lui script tag are supported. When your app has lui compiled in, you need to import from `lui/link` in it instead of `lui`. You can set up an alias for that. Should work. 🤞
 
