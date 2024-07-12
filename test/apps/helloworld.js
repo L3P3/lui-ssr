@@ -4,7 +4,7 @@ const {
 } = lui;
 
 init(() => {
-	return [null, [
+	return [
 		node_dom('h1[innerText=Hello, World!]'),
-	]];
+	];
 });

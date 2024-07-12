@@ -147,6 +147,7 @@ export const hook_callback = (callback, deps) => NOP;
 export const hook_delay = msecs => false;
 
 export const hook_dom = (descriptor, attrs) => {
+	if (!descriptor) return null;
 	wrapper_element = descriptor_parse(descriptor);
 	Object.assign(wrapper_element.attrs, attrs);
 	return null;
@@ -179,7 +180,7 @@ export const init = (root, dom) => {
 	let nodes;
 
 	try {
-		nodes = root()[1];
+		nodes = root();
 	}
 	catch (thrown) {
 		if (thrown !== SYMBOL_SKIP) throw thrown;
