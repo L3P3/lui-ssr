@@ -157,9 +157,14 @@ export const hook_effect = NOP;
 
 export const hook_map = NOP; // TODO?
 
-export const hook_memo = (getter, deps) => getter(...deps);
+export const hook_memo = (getter, deps = []) => getter(...deps);
 
-export const hook_model = mutations => [mutations.init(null), NOP];
+export const hook_model = mutations => [
+	mutations.init(null),
+	Object.fromEntries(
+		Object.keys(mutations).map(key => [key, NOP])
+	),
+];
 
 export const hook_object_changes = Object.keys;
 
