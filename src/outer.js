@@ -8,6 +8,21 @@ const elements_no_close = new Set([
 	'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
 	'link', 'meta', 'param', 'source', 'track', 'wbr',
 ]);
+const arguments_to_html = new Map([
+	['className', 'class'],
+	['htmlFor', 'for'],
+	['tabIndex', 'tabindex'],
+	['readOnly', 'readonly'],
+	['maxLength', 'maxlength'],
+	['cellSpacing', 'cellspacing'],
+	['cellPadding', 'cellpadding'],
+	['rowSpan', 'rowspan'],
+	['colSpan', 'colspan'],
+	['useMap', 'usemap'],
+	['frameBorder', 'frameborder'],
+	['contentEditable', 'contenteditable'],
+]);
+const argument_chars_to_quote = /[\s'`]/;
 
 const context_default = {
 	document: {
@@ -39,55 +54,76 @@ function elements_to_html(elements) {
 }
 
 function element_to_html(element) {
-	let html = `<${element.tag}`;
+	const {D, F, innerHTML, innerText, R, S, style, ...attrs} = element.attrs;
 
-	const {className, D, F, innerHTML, innerText, R, S, style, ...attrs} = element.attrs;
-
-	if (className) attrs['class'] = className;
 	if (D) {
 		for (const [key, value] of Object.entries(D)) {
-			attrs['data-' + key] = value;
+			attrs['data-' + camel_to_dashed(key)] = String(value);
 		}
 	}
 	if (F) {
-		attrs['class'] = Object.keys(F)
+		const value = Object.keys(F)
 			.map(key => F[key] ? key : '')
 			.filter(Boolean)
 			.join(' ');
+		if (value) attrs['className'] = value;
+		else delete attrs['className'];
 	}
 
-	let style_merged = [];
-	if (style) {
-		style_merged.push(
-			...style.split(';')
-			.map(s => s.trim())
-		);
-	}
-	if (S) {
-		style_merged.push(
-			...Object.entries(S)
-			.map(([key, value]) => `${camel_to_dashed(key)}:${value}`)
-		);
+	{
+		let style_merged = [];
+		if (style) {
+			style_merged.push(
+				...style.split(';')
+				.map(s =>
+					s.trim()
+					.replace(/\s*:\s*/, ':')
+				)
+				.filter(Boolean)
+			);
+		}
+		if (S) {
+			style_merged.push(
+				...Object.entries(S)
+				.map(([key, value]) => `${camel_to_dashed(key)}:${value}`)
+			);
+		}
+		if (style_merged.length > 0) {
+			attrs['style'] = style_merged.join(';');
+		}
 	}
 
+	let html = `<${element.tag}`;
 	for (const [key, value] of Object.entries(attrs)) {
 		if (value === false) continue;
 		if (typeof value === 'function') continue;
 		if (key.startsWith('on')) continue;
 
-		const attribute = camel_to_dashed(key);
+		const attribute = camel_to_dashed(
+			arguments_to_html.get(key) || key
+		);
 
-		if (value === true) html += ` ${attribute}`;
-		else html += ` ${attribute}="${html_escape(value)}"`;
+		if (value === true) {
+			html += ` ${attribute}`;
+			continue;
+		}
+
+		const value_str = String(value);
+		const quote = (
+			!value_str ||
+			argument_chars_to_quote.test(value_str)
+			?	'"'
+			:	''
+		);
+		html += ` ${attribute}=${quote}${html_escape(value_str)}${quote}`;
 	}
 
-	if (style_merged.length) html += ` style="${html_escape(style_merged.join(';'))}"`;
-
-	const text = innerHTML || innerText && html_escape(innerText);
-
 	if (!elements_no_close.has(element.tag)) {
-		html += '>';
-		if (text) html += text;
+		html += `>${
+			innerHTML ||
+			innerText && html_escape(String(innerText)) ||
+			''
+		}`;
 		if (element.children) html += elements_to_html(element.children);
 		html += `</${element.tag}>`;
 	}
@@ -98,7 +134,7 @@ function element_to_html(element) {
 
 function html_escape(html) {
 	return (
-		String(html)
+		html
 		.replaceAll('&', '&amp;')
 		.replaceAll('<', '&lt;')
 		.replaceAll('>', '&gt;')

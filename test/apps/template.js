@@ -19,7 +19,7 @@ dom_define('test2', '#test', {
 		textAlign: 'center',
 	},
 	D: {
-		bla: 'bla',
+		blaBlubb: 'bla',
 	},
 });
 
@@ -32,9 +32,10 @@ init(() => {
 			},
 		}),
 		node_dom('#test2', {
-			S: {
-				textDecoration: 'underline',
-			},
+			style: `
+				some-attribute :
+					some value ;
+			`,
 		}),
 	];
 });
