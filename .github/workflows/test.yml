@@ -1,0 +1,33 @@
+# Run tests with Node.js
+name: Test lui-ssr
+
+on:
+  push:
+    branches-ignore:
+      - dist
+    paths:
+      - 'test/**'
+      - 'src/**'
+  pull_request:
+    branches-ignore:
+      - dist
+    paths:
+      - 'test/**'
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run tests
+        run: npm test
