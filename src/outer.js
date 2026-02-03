@@ -124,7 +124,7 @@ function element_to_html(element) {
 			innerText && html_escape(String(innerText)) ||
 			''
 		}`;
-		if (element.children && !innerHTML && !innerText) html += elements_to_html(element.children);
+		if (element.children) html += elements_to_html(element.children);
 		html += `</${element.tag}>`;
 	}
 	else html += '>';
