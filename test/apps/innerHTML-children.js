@@ -1,4 +1,4 @@
-// Test innerHTML with children (innerHTML should take precedence)
+// Test innerHTML with children (children appear AFTER innerHTML/innerText content)
 const {
 	init,
 	node_dom,
@@ -9,14 +9,14 @@ init(() => [
 	node_dom('div', {
 		innerHTML: 'This is innerHTML',
 	}, [
-		node_dom('p[innerText=This child should not appear]'),
+		node_dom('p[innerText=This child appears after innerHTML]'),
 	]),
 	node_dom('div', {
 		innerText: 'This is innerText',
 	}, [
-		node_dom('p[innerText=This child should not appear either]'),
+		node_dom('p[innerText=This child appears after innerText]'),
 	]),
 	node_dom('div', null, [
-		node_dom('p[innerText=This child should appear]'),
+		node_dom('p[innerText=This child appears normally]'),
 	]),
 ]);
