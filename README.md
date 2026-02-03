@@ -47,6 +47,23 @@ SSR stands for Server-Side Rendering. It is a technique to render a web applicat
 
 - There is no error handling at all. Any bug is undefined behaviour. If your app works with lui.dev.js without errors, it should work here too.
 
+## Testing
+
+lui-ssr has a comprehensive test suite with 35+ test applications covering:
+- All lui hooks (state, memo, model, async, etc.)
+- Component nesting and composition
+- Special attributes (data-*, classes, styles)
+- HTML element rendering and escaping
+- Template system and inheritance
+- Edge cases and real-world scenarios
+
+Run the tests:
+```bash
+npm test
+```
+
+See [test/apps/README.md](test/apps/README.md) for detailed test coverage.
+
 ## Technical details
 
 This wrapper only executes as much as is needed to generate the initial HTML by providing a mock lui interface to the app. `hook_effect`s are ignored, `hook_memo`s just pass-through and so on. When you hold up to my lui rules, you should be fine.
