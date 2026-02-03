@@ -44,7 +44,7 @@ This directory contains comprehensive test applications to verify that lui-ssr c
 
 ### Content Rendering
 - **innerHTML-innerText.js** - Tests innerHTML vs innerText behavior and precedence
-- **innerHTML-children.js** - Tests that children are ignored when innerHTML/innerText is present
+- **innerHTML-children.js** - Tests that children are rendered after existing innerHTML/innerText content
 
 ### Templates
 - **template.js** - Tests basic template definition and usage with `dom_define`
@@ -70,6 +70,16 @@ node test/apps.js <test-name>
 # Example:
 node test/apps.js helloworld
 ```
+
+### Test Validation
+
+The test runner automatically validates outputs:
+- Each `.js` test file has a corresponding `.html` file with the expected output
+- When you run tests, the actual output is compared against the `.html` file
+- If they match, you'll see: `✓ Output matches <test>.html`
+- If they don't match, you'll see: `MISMATCH: Output does not match <test>.html`
+- Any mismatches are collected and reported at the end, causing the test suite to fail
+- If a `.html` file doesn't exist, it will be automatically created with the current output
 
 ## Expected Output
 
