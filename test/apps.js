@@ -15,6 +15,8 @@ if (process.argv.length > 2) {
 	ssrApp(process.argv[2] + '.js');
 }
 else for (const file of fs.readdirSync(dir)) {
+	if (!file.endsWith('.js')) continue;
+	
 	console.log('file', file);
 
 	ssrApp(file);
