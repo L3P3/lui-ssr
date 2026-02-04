@@ -1,4 +1,6 @@
 import * as inner from './inner.js';
+import vm from 'vm';
+
 const {
 	tree,
 	...lui
@@ -24,6 +26,8 @@ const arguments_to_html = new Map([
 ]);
 const argument_chars_to_quote = /[\s'`]/;
 
+const NOP = () => {};
+
 const context_default = {
 	document: {
 		cookie: '',
@@ -32,18 +36,69 @@ const context_default = {
 		userAgent: 'lui-ssr',
 	},
 	SSR: true,
+	setTimeout: NOP,
+	setInterval: NOP,
+	setImmediate: NOP,
+	clearTimeout: NOP,
+	clearInterval: NOP,
+	clearImmediate: NOP,
+	requestAnimationFrame: NOP,
+	cancelAnimationFrame: NOP,
+	fetch: NOP,
+	XMLHttpRequest: function() {},
+	WebSocket: function() {},
+	localStorage: {
+		getItem: () => null,
+		setItem: NOP,
+		removeItem: NOP,
+		clear: NOP,
+	},
+	sessionStorage: {
+		getItem: () => null,
+		setItem: NOP,
+		removeItem: NOP,
+		clear: NOP,
+	},
+	console: {
+		log: NOP,
+		error: NOP,
+		warn: NOP,
+		info: NOP,
+		debug: NOP,
+	},
 };
 
 /**
 	Builds the app.js into a function that can be used to render the app.
 	@param {string} src the app.js
+	@param {number} timeout timeout in milliseconds (default: 5000)
 	@returns {function(Object):string} the rendered html
 */
-export default function build(src) {
-	const fn = new Function('lui', 'window', 'document', 'navigator', src);
+export default function build(src, timeout = 5000) {
+	const script = new vm.Script(src);
 	return function run(context = null) {
 		context = Object.assign({}, context_default, context);
-		fn(lui, context, context.document, context.navigator);
+		
+		// Create a sandboxed context with lui and browser globals
+		const sandbox = {
+			lui,
+			window: context,
+			document: context.document,
+			navigator: context.navigator,
+		};
+		
+		// Add all context properties to sandbox
+		Object.assign(sandbox, context);
+		
+		try {
+			script.runInNewContext(sandbox, {timeout});
+		} catch (error) {
+			if (error.code === 'ERR_SCRIPT_EXECUTION_TIMEOUT') {
+				throw new Error('App execution timed out');
+			}
+			throw error;
+		}
+		
 		// console.log(JSON.stringify(tree, null, 2));
 		return elements_to_html(tree);
 	};
