@@ -43,9 +43,9 @@ SSR stands for Server-Side Rendering. It is a technique to render a web applicat
 
 - Only applications having a separate lui script tag are supported. When your app has lui compiled in, you need to import from `lui/link` in it instead of `lui`. You can set up an alias for that. Should work. 🤞
 
-- The app is run in a sandboxed VM with a 100ms timeout to prevent infinite loops from freezing the server. Most browser globals (setTimeout, localStorage, etc.) are mocked as no-ops or return null. This makes it safe to run untrusted code, but apps with heavy computation may timeout.
+- The app is run in a sandboxed VM with a 100ms timeout to prevent infinite loops from freezing the server. Most browser globals (setTimeout, localStorage, etc.) are mocked as no-ops or return null. This is fine for most applications, but if the app comes from some user, you are doomed and probably fired.
 
-- There is no error handling at all. Any bug is undefined behaviour. If your app works with lui.dev.js without errors, it should work here too.
+- There is no lui design rules enforcement at all. Most bugs are undefined behaviour. If your app works with lui.dev.js without errors, it should work here too.
 
 ## Testing
 

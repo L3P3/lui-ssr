@@ -1,4 +1,4 @@
-# Run tests with Node.js
+# Run tests with bun
 name: Test lui-ssr
 
 on:
@@ -22,13 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
       
       - name: Install dependencies
-        run: npm install
+        run: bun install
       
       - name: Run tests
-        run: npm test
+        run: bun test

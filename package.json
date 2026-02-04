@@ -16,7 +16,7 @@
 	},
 	"type": "module",
 	"scripts": {
-		"test": "node test/apps.js"
+		"test": "bun test --randomize"
 	},
 	"keywords": [
 		"lui",
