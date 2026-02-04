@@ -24,6 +24,15 @@ assert(html === '<h1>Hello World!</h1>');
 
 Notice the extra `()` at the end of the function call. This is because lui-ssr returns a function that you can call with an optional mock `window` object. This is useful for run-time constants and dynamic data without recompiling every time.
 
+### Timeout Configuration
+
+By default, apps have a 5-second timeout to prevent infinite loops. You can customize this:
+
+```js
+const render = lui_ssr(app_src, 10000); // 10 second timeout
+const html = render();
+```
+
 Use the returned HTML as the "placeholder" in your lui root element and keep everything else as it is.
 
 When the actual application in the browser is run, lui will (later) re-use the generated elements.
@@ -43,7 +52,7 @@ SSR stands for Server-Side Rendering. It is a technique to render a web applicat
 
 - Only applications having a seperate lui script tag are supported. When your app has lui compiled in, you need to import from `lui/link` in it instead of `lui`. You can set up an alias for that. Should work. 🤞
 
-- The provided app is run synchronously without any sandboxing whatsoever. There is not even a try-catch around it. This is fine for most applications, but if the app comes from some user, you are doomed and probably fired.
+- The app is run in a sandboxed VM with a 5-second timeout to prevent infinite loops from freezing the server. Most browser globals (setTimeout, localStorage, etc.) are mocked as no-ops or return null. This makes it safe to run untrusted code, but apps with heavy computation may timeout.
 
 - There is no error handling at all. Any bug is undefined behaviour. If your app works with lui.dev.js without errors, it should work here too.
 

@@ -5,8 +5,18 @@ console.log('Testing sandbox timeout protection...');
 
 // Test 1: Infinite loop should timeout
 try {
-	const app = fs.readFileSync('./test/apps/sandbox-timeout.js', 'utf8');
-	const render = lui_ssr(app);
+	const maliciousApp = `
+		const {init, node_dom} = lui;
+		init(() => {
+			while(true) {
+				// infinite loop
+			}
+			return [
+				node_dom('h1[innerText=This should never render]'),
+			];
+		});
+	`;
+	const render = lui_ssr(maliciousApp);
 	render(); // Should throw timeout error
 	console.error('❌ FAIL: Infinite loop did not timeout');
 	process.exit(1);
