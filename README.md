@@ -41,11 +41,11 @@ SSR stands for Server-Side Rendering. It is a technique to render a web applicat
 
 - This module is quite simple and might not work with really hacky lui applications. ([minicraft](https://l3p3.de/minicraft) works, see its page source) If you find a bug, please open an issue or a pull request anyway.
 
-- Only applications having a seperate lui script tag are supported. When your app has lui compiled in, you need to import from `lui/link` in it instead of `lui`. You can set up an alias for that. Should work. 🤞
+- Only applications having a separate lui script tag are supported. When your app has lui compiled in, you need to import from `lui/link` in it instead of `lui`. You can set up an alias for that. Should work. 🤞
 
-- The provided app is run synchronously without any sandboxing whatsoever. There is not even a try-catch around it. This is fine for most applications, but if the app comes from some user, you are doomed and probably fired.
+- The app is run in a sandboxed VM with a 100ms timeout to prevent infinite loops from freezing the server. Most browser globals (setTimeout, localStorage, etc.) are mocked as no-ops or return null. This is fine for most applications, but if the app comes from some user, you are doomed and probably fired.
 
-- There is no error handling at all. Any bug is undefined behaviour. If your app works with lui.dev.js without errors, it should work here too.
+- There is no lui design rules enforcement at all. Most bugs are undefined behaviour. If your app works with lui.dev.js without errors, it should work here too.
 
 ## Testing
 

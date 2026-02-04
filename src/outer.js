@@ -1,4 +1,6 @@
 import * as inner from './inner.js';
+import vm from 'vm';
+
 const {
 	tree,
 	...lui
@@ -24,14 +26,62 @@ const arguments_to_html = new Map([
 ]);
 const argument_chars_to_quote = /[\s'`]/;
 
+const NOP = () => {};
+const NOP_async = () => new Promise(() => {});
+
 const context_default = {
+	lui,
 	document: {
 		cookie: '',
 	},
 	navigator: {
 		userAgent: 'lui-ssr',
 	},
+	location: {
+		reload: NOP,
+	},
 	SSR: true,
+	setTimeout: NOP,
+	setInterval: NOP,
+	setImmediate: NOP,
+	clearTimeout: NOP,
+	clearInterval: NOP,
+	clearImmediate: NOP,
+	requestAnimationFrame: NOP,
+	cancelAnimationFrame: NOP,
+	fetch: NOP_async,
+	XMLHttpRequest: function() {},
+	WebSocket: function() {},
+	localStorage: {
+		getItem: () => null,
+		setItem: NOP,
+		removeItem: NOP,
+		clear: NOP,
+		key: () => null,
+		length: 0,
+	},
+	sessionStorage: {
+		getItem: () => null,
+		setItem: NOP,
+		removeItem: NOP,
+		clear: NOP,
+		key: () => null,
+		length: 0,
+	},
+	console: {
+		log: NOP,
+		error: NOP,
+		warn: NOP,
+		info: NOP,
+		debug: NOP,
+	},
+	Image: Object,
+	addEventListener: NOP,
+	removeEventListener: NOP,
+	alert: NOP,
+	confirm: () => false,
+	prompt: () => null,
+	close: NOP,
 };
 
 /**
@@ -40,10 +90,20 @@ const context_default = {
 	@returns {function(Object):string} the rendered html
 */
 export default function build(src) {
-	const fn = new Function('lui', 'window', 'document', 'navigator', src);
+	const script = new vm.Script(src);
 	return function run(context = null) {
 		context = Object.assign({}, context_default, context);
-		fn(lui, context, context.document, context.navigator);
+		context.window = context;
+		
+		try {
+			script.runInNewContext(context, {timeout: 100});
+		} catch (error) {
+			if (error.code === 'ERR_SCRIPT_EXECUTION_TIMEOUT') {
+				throw new Error('App execution timed out');
+			}
+			throw error;
+		}
+		
 		// console.log(JSON.stringify(tree, null, 2));
 		return elements_to_html(tree);
 	};
