@@ -7,33 +7,42 @@ const dir = path.dirname(new URL(import.meta.url).pathname) + '/apps';
 const mismatches = [];
 
 function ssrApp(file) {
-	const app = fs.readFileSync(dir + '/' + file, 'utf8');
-	const html = lui_ssr(app)();
+	const testName = file.replace(/\.js$/, '');
+	let error = null;
+	let created = false;
 	
-	const htmlFile = file.replace(/\.js$/, '.html');
-	const htmlPath = dir + '/' + htmlFile;
-	
-	// Check if .html file exists
-	if (fs.existsSync(htmlPath)) {
-		// Compare with expected output
-		const expected = fs.readFileSync(htmlPath, 'utf8').trim();
-		if (html !== expected) {
-			mismatches.push({
-				file,
-				expected,
-				actual: html
-			});
-			console.log('result', html);
-			console.log('MISMATCH: Output does not match ' + htmlFile);
+	try {
+		const app = fs.readFileSync(dir + '/' + file, 'utf8');
+		const html = lui_ssr(app)();
+		
+		const htmlFile = file.replace(/\.js$/, '.html');
+		const htmlPath = dir + '/' + htmlFile;
+		
+		// Check if .html file exists
+		if (fs.existsSync(htmlPath)) {
+			// Compare with expected output
+			const expected = fs.readFileSync(htmlPath, 'utf8').trim();
+			if (html !== expected) {
+				error = `Output does not match ${htmlFile}`;
+				mismatches.push({
+					file,
+					expected,
+					actual: html
+				});
+			}
 		} else {
-			console.log('result', html);
-			console.log('✓ Output matches ' + htmlFile);
+			// Auto-save the output
+			fs.writeFileSync(htmlPath, html, 'utf8');
+			created = true;
 		}
-	} else {
-		// Auto-save the output
-		fs.writeFileSync(htmlPath, html, 'utf8');
-		console.log('result', html);
-		console.log('✓ Saved output to ' + htmlFile);
+	} catch (err) {
+		error = err.message;
+	}
+	
+	// Single console.log per test with emoji
+	console.log(testName, created ? '⭐' : error ? '❌' : '✅');
+	if (error) {
+		console.log(error);
 	}
 }
 
@@ -42,11 +51,7 @@ if (process.argv.length > 2) {
 }
 else for (const file of fs.readdirSync(dir)) {
 	if (!file.endsWith('.js')) continue;
-	
-	console.log('file', file);
-
 	ssrApp(file);
-	console.log('------------------');
 }
 
 // Report mismatches at the end
