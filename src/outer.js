@@ -52,12 +52,16 @@ const context_default = {
 		setItem: NOP,
 		removeItem: NOP,
 		clear: NOP,
+		key: () => null,
+		length: 0,
 	},
 	sessionStorage: {
 		getItem: () => null,
 		setItem: NOP,
 		removeItem: NOP,
 		clear: NOP,
+		key: () => null,
+		length: 0,
 	},
 	console: {
 		log: NOP,
