@@ -139,7 +139,6 @@ function element_to_html(element) {
 					s.trim()
 					.replace(/\s*:\s*/, ':')
 				)
-				.filter(Boolean)
 			);
 		}
 		if (S) {
@@ -149,7 +148,12 @@ function element_to_html(element) {
 			);
 		}
 		if (style_merged.length > 0) {
-			attrs['style'] = style_merged.join(';');
+			attrs['style'] = (
+				style_merged
+				.filter(entry => entry && !entry.endsWith(':'))
+				.join(';') ||
+				false
+			);
 		}
 	}
 
