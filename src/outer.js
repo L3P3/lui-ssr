@@ -27,8 +27,10 @@ const arguments_to_html = new Map([
 const argument_chars_to_quote = /[\s'`]/;
 
 const NOP = () => {};
+const NOP_async = () => new Promise(() => {});
 
 const context_default = {
+	lui,
 	document: {
 		cookie: '',
 	},
@@ -44,7 +46,7 @@ const context_default = {
 	clearImmediate: NOP,
 	requestAnimationFrame: NOP,
 	cancelAnimationFrame: NOP,
-	fetch: NOP,
+	fetch: NOP_async,
 	XMLHttpRequest: function() {},
 	WebSocket: function() {},
 	localStorage: {
@@ -75,27 +77,16 @@ const context_default = {
 /**
 	Builds the app.js into a function that can be used to render the app.
 	@param {string} src the app.js
-	@param {number} timeout timeout in milliseconds (default: 5000)
 	@returns {function(Object):string} the rendered html
 */
-export default function build(src, timeout = 5000) {
+export default function build(src) {
 	const script = new vm.Script(src);
 	return function run(context = null) {
 		context = Object.assign({}, context_default, context);
-		
-		// Create a sandboxed context with lui and browser globals
-		const sandbox = {
-			lui,
-			window: context,
-			document: context.document,
-			navigator: context.navigator,
-		};
-		
-		// Add all context properties to sandbox
-		Object.assign(sandbox, context);
+		context.window = context;
 		
 		try {
-			script.runInNewContext(sandbox, {timeout});
+			script.runInNewContext(context, {timeout: 100});
 		} catch (error) {
 			if (error.code === 'ERR_SCRIPT_EXECUTION_TIMEOUT') {
 				throw new Error('App execution timed out');
