@@ -37,6 +37,9 @@ const context_default = {
 	navigator: {
 		userAgent: 'lui-ssr',
 	},
+	location: {
+		reload: NOP,
+	},
 	SSR: true,
 	setTimeout: NOP,
 	setInterval: NOP,
@@ -72,6 +75,13 @@ const context_default = {
 		info: NOP,
 		debug: NOP,
 	},
+	Image: Object,
+	addEventListener: NOP,
+	removeEventListener: NOP,
+	alert: NOP,
+	confirm: () => false,
+	prompt: () => null,
+	close: NOP,
 };
 
 /**
